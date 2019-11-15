@@ -1,0 +1,26 @@
+{
+  "name": "ing-es-cms-crawler",
+  "version": "0.0.1",
+  "description": "Web crawler that will make screenshots of web pages",
+  "main": "main.js",
+  "scripts": {
+    "test": "standard",
+    "fix": "standard --fix"
+  },
+  "author": "Daniel Vivar <jose.daniel.vivar.personat@ing.com>",
+  "license": "ISC",
+  "dependencies": {
+    "request": "^2.88.0"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^8.2.0",
+    "@commitlint/config-conventional": "^8.2.0",
+    "standard": "^14.3.1"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm test",
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
+  }
+}
