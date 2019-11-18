@@ -1,11 +1,34 @@
 const puppeteer = require('puppeteer')
+const imagemin = require('imagemin')
+const imageminWebp = require('imagemin-webp')
+const { zip } = require('zip-a-folder')
 const MAX_URL_FILENAME_LENGTH = 100
 
 module.exports = {
-  getPageHrefs
+  getPageHrefs,
+  minimiseImages,
+  zipImages
 }
 
-let browser
+async function zipImages () {
+  await zip('screenshots/optimised', 'dist/archive.zip')
+  console.log('Images zipped')
+}
+
+async function minimiseImages () {
+  await imagemin(['screenshots/*.png'],
+    {
+      destination: 'screenshots/optimised',
+      plugins: [
+        imageminWebp({
+          quality: 10
+        })
+      ]
+    }
+  )
+
+  console.log('Images optimized')
+}
 
 async function takeScreenshot (page, url) {
   await page.screenshot({
@@ -14,13 +37,19 @@ async function takeScreenshot (page, url) {
   })
 }
 
+let browser
+
 async function firstTimeVisit (url) {
   browser = await puppeteer.launch()
   const page = await browser.newPage()
   await page.goto(url)
   // For the cookie notice
   await takeScreenshot(page, 'cookie')
-  await page.click('#aceptar')
+  try {
+    await page.click('#aceptar')
+  } catch {
+    console.log('No cookie button')
+  }
   return browser
 }
 
@@ -74,7 +103,7 @@ function filterUrls (urls, whitelist, filetypeBlacklist) {
 }
 
 async function getPageHrefs (url, whitelist, filetypeBlacklist, brokenUrls) {
-  // Get HTML string out of a public URL
+  // Get HTML string out of a public URL and make a save a screenshot of it
   const html = await requestHtmlBody(url, brokenUrls)
 
   if (html === '') {

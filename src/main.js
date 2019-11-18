@@ -27,6 +27,9 @@ async function main () {
 
   console.log('Visited URLs: ', visitedUrls)
   console.log('Broken URLs: ', brokenUrls)
+
+  await utils.minimiseImages()
+  await utils.zipImages()
 }
 
 main()
