@@ -11,14 +11,14 @@ module.exports = {
 }
 
 async function zipImages () {
-  await zip('screenshots/optimised', 'dist/archive.zip')
+  await zip('dist/optimised', `dist/screenshots-${new Date().toISOString()}.zip`)
   console.log('Images zipped')
 }
 
 async function minimiseImages () {
   await imagemin(['screenshots/*.png'],
     {
-      destination: 'screenshots/optimised',
+      destination: 'dist/optimised',
       plugins: [
         imageminWebp({
           quality: 10

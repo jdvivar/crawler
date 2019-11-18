@@ -1,12 +1,13 @@
 const utils = require('./utils')
 
-let pendingUrls = ['https://www.ing.es/']
+// let pendingUrls = ['https://www.ing.es/']
+let pendingUrls = ['https://www.danielvivar.com/']
 const visitedUrls = []
 const brokenUrls = []
 
 const domainWhitelist = [
-  'ennaranja.com',
-  'ing.es'
+  // 'ing.es'
+  'danielvivar.com'
 ]
 
 const filetypeBlacklist = [
