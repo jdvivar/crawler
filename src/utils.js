@@ -1,4 +1,5 @@
 const puppeteer = require('puppeteer')
+const MAX_URL_FILENAME_LENGTH = 100
 
 module.exports = {
   getPageHrefs
@@ -8,15 +9,25 @@ let browser
 
 async function takeScreenshot (page, url) {
   await page.screenshot({
-    path: './screenshots/' + url.replace(/\//g, '--') + 'screenshot.png',
+    path: './screenshots/' + url.replace(/\//g, '--').substring(0, MAX_URL_FILENAME_LENGTH) + '.png',
     fullPage: true
   })
+}
+
+async function firstTimeVisit (url) {
+  browser = await puppeteer.launch()
+  const page = await browser.newPage()
+  await page.goto(url)
+  // For the cookie notice
+  await takeScreenshot(page, 'cookie')
+  await page.click('#aceptar')
+  return browser
 }
 
 async function requestHtmlBody (url, brokenUrls) {
   try {
     if (!browser) {
-      browser = await puppeteer.launch()
+      browser = await firstTimeVisit(url)
     }
     const page = await browser.newPage()
     await page.goto(url)
