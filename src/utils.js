@@ -1,14 +1,34 @@
-const request = require('request-promise')
+const puppeteer = require('puppeteer')
 
 module.exports = {
   getPageHrefs
 }
 
+let browser
+
+async function takeScreenshot (page, url) {
+  await page.screenshot({
+    path: './screenshots/' + url.replace(/\//g, '--') + 'screenshot.png',
+    fullPage: true
+  })
+}
+
 async function requestHtmlBody (url, brokenUrls) {
   try {
-    return await request(url)
+    if (!browser) {
+      browser = await puppeteer.launch()
+    }
+    const page = await browser.newPage()
+    await page.goto(url)
+    const body = await page.content()
+    if (body) {
+      await takeScreenshot(page, url)
+    }
+    page.close()
+    return body
   } catch (error) {
     // console.error('URL failed: ', url)
+    console.error(error)
     brokenUrls.push(url)
     return ''
   }
