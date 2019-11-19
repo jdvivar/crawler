@@ -1,14 +1,12 @@
 const utils = require('./utils')
 const { performance } = require('perf_hooks')
 
-// let pendingUrls = ['https://www.ing.es/']
-let pendingUrls = ['https://www.danielvivar.com/', 'https://personal.danielvivar.com/Daniel Vivar - CV.pdf']
+let pendingUrls = ['https://www.ing.es/']
 const visitedUrls = []
 const brokenUrls = []
 
 const domainWhitelist = [
-  'ing.es',
-  'danielvivar.com'
+  'ing.es'
 ]
 
 const filetypeBlacklist = []
