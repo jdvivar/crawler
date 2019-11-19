@@ -1,6 +1,8 @@
 const puppeteer = require('puppeteer')
 const imagemin = require('imagemin')
 const imageminWebp = require('imagemin-webp')
+const fs = require('fs')
+const request = require('request-promise')
 const { zip } = require('zip-a-folder')
 const MAX_URL_FILENAME_LENGTH = 100
 
@@ -11,61 +13,86 @@ module.exports = {
 }
 
 async function zipImages () {
-  await zip('dist/optimised', `dist/screenshots-${new Date().toISOString()}.zip`)
-  console.log('Images zipped')
+  try {
+    const destination = `dist/screenshots-${new Date().toISOString()}.zip`
+    await zip('dist/optimised', destination)
+    console.log(`Images zipped in ${destination}`)
+  } catch {
+    console.log('Error zipping images')
+  }
 }
 
 async function minimiseImages () {
-  await imagemin(['screenshots/*.png'],
-    {
-      destination: 'dist/optimised',
-      plugins: [
-        imageminWebp({
-          quality: 10
-        })
-      ]
-    }
-  )
+  try {
+    await imagemin(['screenshots/*.png'],
+      {
+        destination: 'dist/optimised',
+        plugins: [
+          imageminWebp({
+            quality: 10
+          })
+        ]
+      }
+    )
+    console.log('Images optimized')
+  } catch {
+    console.log('Error optimising images')
+  }
+}
 
-  console.log('Images optimized')
+function getUrlToFileName (url) {
+  return url.replace(/\//g, '--').substring(0, MAX_URL_FILENAME_LENGTH)
 }
 
 async function takeScreenshot (page, url) {
-  await page.screenshot({
-    path: './screenshots/' + url.replace(/\//g, '--').substring(0, MAX_URL_FILENAME_LENGTH) + '.png',
-    fullPage: true
-  })
+  try {
+    const path = './screenshots/' + getUrlToFileName(url) + '.png'
+    await page.screenshot({
+      path,
+      fullPage: true
+    })
+    console.log(`Screenshot saved at ${path}`)
+  } catch {
+    console.log('Screenshot failed')
+  }
 }
 
-let browser
-
 async function firstTimeVisit (url) {
-  browser = await puppeteer.launch()
+  const browser = await puppeteer.launch()
   const page = await browser.newPage()
-  await page.goto(url)
-  // For the cookie notice
-  await takeScreenshot(page, 'cookie')
   try {
+    await page.goto(url)
+    // For the cookie notice
+    await takeScreenshot(page, 'cookie')
     await page.click('#aceptar')
   } catch {
     console.log('No cookie button')
   }
-  return browser
+  return page
 }
+
+async function handleUrl (page, url) {
+  try {
+    if (!url.endsWith('pdf')) {
+      await page.goto(url)
+      await takeScreenshot(page, url)
+    } else {
+      await request(url).pipe(fs.createWriteStream('./screenshots/' + getUrlToFileName(url)))
+      return ''
+    }
+  } catch {
+    console.log(`Navigation to ${url} failed`)
+  }
+}
+
+let page
 
 async function requestHtmlBody (url, brokenUrls) {
   try {
-    if (!browser) {
-      browser = await firstTimeVisit(url)
+    if (!page) {
+      page = await firstTimeVisit(url)
     }
-    const page = await browser.newPage()
-    await page.goto(url)
-    const body = await page.content()
-    if (body) {
-      await takeScreenshot(page, url)
-    }
-    page.close()
-    return body
+    await handleUrl(page, url)
   } catch (error) {
     // console.error('URL failed: ', url)
     console.error(error)
@@ -106,9 +133,11 @@ async function getPageHrefs (url, whitelist, filetypeBlacklist, brokenUrls) {
   // Get HTML string out of a public URL and make a save a screenshot of it
   const html = await requestHtmlBody(url, brokenUrls)
 
-  if (html === '') {
+  if (!html) {
     return []
   }
+
+  console.log('HTML: ', html)
 
   // Parse it and extract hrefs out of all anchors
   const hrefs = extractAnchorsHrefs(html)

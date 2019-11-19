@@ -20,6 +20,8 @@
     "imagemin": "^7.0.1",
     "imagemin-webp": "^5.1.0",
     "puppeteer": "^2.0.0",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.5",
     "zip-a-folder": "0.0.9"
   },
   "devDependencies": {
@@ -39,5 +41,12 @@
       "pre-commit": "npm test",
       "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
     }
+  },
+  "standard": {
+    "env": "node",
+    "ignore": [
+      "dist/"
+    ],
+    "globals": []
   }
 }

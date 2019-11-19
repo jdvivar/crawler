@@ -1,21 +1,23 @@
 const utils = require('./utils')
+const { performance } = require('perf_hooks')
 
 // let pendingUrls = ['https://www.ing.es/']
-let pendingUrls = ['https://www.danielvivar.com/']
+let pendingUrls = ['https://www.danielvivar.com/', 'https://personal.danielvivar.com/Daniel Vivar - CV.pdf']
 const visitedUrls = []
 const brokenUrls = []
 
 const domainWhitelist = [
-  // 'ing.es'
+  'ing.es',
   'danielvivar.com'
 ]
 
-const filetypeBlacklist = [
-  'pdf',
-  'jpg'
-]
+const filetypeBlacklist = []
 
 async function main () {
+  const executionStart = performance.now()
+
+  console.log('ing-es-cms-crawler starting...\n')
+
   while (pendingUrls.length) {
     const thisUrl = pendingUrls.pop()
     visitedUrls.push(thisUrl)
@@ -31,6 +33,17 @@ async function main () {
 
   await utils.minimiseImages()
   await utils.zipImages()
+
+  const executionTime = performance.now() - executionStart
+  const executionObject = {
+    min: Math.floor(executionTime / 60000),
+    sec: Math.round(executionTime % 60000 / 1000)
+  }
+
+  console.log(`Executed in ${executionObject.min ? executionObject.min + ' min' : ''} ${executionObject.sec} sec`)
+  console.log('\ning-es-cms-crawler finished\n')
+
+  process.exit(0)
 }
 
 main()
