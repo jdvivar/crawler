@@ -2,7 +2,7 @@ const puppeteer = require('puppeteer')
 const imagemin = require('imagemin')
 const imageminWebp = require('imagemin-webp')
 const fs = require('fs')
-const request = require('request-promise')
+const request = require('request')
 const robotsParse = require('robots-parse')
 const { zip } = require('zip-a-folder')
 const { parser } = require('robots-parse')
@@ -76,22 +76,28 @@ async function firstTimeVisit (url) {
 }
 
 async function handleUrl (page, url) {
-  try {
-    if (!url.endsWith('pdf')) {
-      const response = await page.goto(url)
-      console.log('response.status: ', response.status())
-      if (response.status() !== 404) {
-        await takeScreenshot(page, url)
-        return await page.content()
-      } else {
-        throw new Error('404')
-      }
+  if (!url.endsWith('pdf')) {
+    const response = await page.goto(url)
+    console.log('response.status:', response.status())
+    if (response.status() < 400) {
+      await takeScreenshot(page, url)
+      const content = await page.content()
+      return content
     } else {
-      await request(url).pipe(fs.createWriteStream('./screenshots/' + getUrlToFileName(url)))
-      return ''
+      throw new Error(response.status())
     }
-  } catch {
-    console.log(`Navigation to ${url} failed`)
+  } else {
+    const fileName = './screenshots/' + getUrlToFileName(url)
+    return new Promise(function (resolve, reject) {
+      request
+        .get(url, { timeout: 3000 })
+        .on('error', function (err) {
+          console.log(err)
+          reject(err)
+        })
+        .on('response', () => resolve())
+        .pipe(fs.createWriteStream(fileName))
+    })
   }
 }
 
