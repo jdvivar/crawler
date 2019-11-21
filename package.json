@@ -23,6 +23,7 @@
     "puppeteer": "^2.0.0",
     "request": "^2.88.0",
     "request-promise": "^4.2.5",
+    "robots-parse": "0.0.6",
     "zip-a-folder": "0.0.9"
   },
   "devDependencies": {

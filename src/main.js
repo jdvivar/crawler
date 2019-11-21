@@ -16,6 +16,9 @@ async function main () {
 
   console.log('ing-es-cms-crawler starting...\n')
 
+  // Extract URLs from robots
+  pendingUrls = pendingUrls.concat(utils.extractURLsFromRobots())
+
   while (pendingUrls.length) {
     const thisUrl = pendingUrls.pop()
     visitedUrls.push(thisUrl)

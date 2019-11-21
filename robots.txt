@@ -1,0 +1,184 @@
+User-agent: *
+
+Disallow: /cuenta-naranja/?sem=sem-google_search-cuenta_naranja-cuenta_naranja_ing-texto-naranja-ingdirect.es/cuenta_naranja/
+Disallow: /cuenta-nomina-ing/?rrss=rrss-20161119-black-friday
+Disallow: /cuenta-naranja/?dis=dis-ing-derepente-blank-blank-naranja-ingdirect.es/cuenta_naranja/
+Disallow: /negocios/linea-credito/?dis=dis-vocento-abc-ros-800x600-credito-ingdirect.es%2Fnegocios%2Flinea_credito%2F
+Disallow: /cuenta-naranja/?dis=dis-20minutos-financialred-ros-sponsorlink-naranja-ingdirect.es/cuenta_naranja/
+Disallow: /cuenta-naranja/?dis=dis-20minutos-20minutos-home-market_place-naranja-ingdirect.es/cuenta_naranja/
+Disallow: /prestamos-personales/?sem=sem-google_content-dinero-content-texto-prestamos-ingdirect.es/prestamos_personales/
+Disallow: /prestamos-personales/?sem=sem-google_content-financiacion-content-texto-prestamos-ingdirect.es/prestamos_personales/
+Disallow: /contactar/buscar-oficinas-ing/oficina-Granada-6.html?sem=sem-google_search-granada-grupo-texto-oficinas-ingdirect.es/contactar/buscar-oficinas-ing/oficina-Granada-6.html
+Disallow: /sobre-ing/como-hacerse-cliente.html?micro=PeopleInProgress
+Disallow: /cuenta-naranja/cuenta-mini.html?fuente=m20minutoses
+Disallow: /sobre-ing/people-in-progress/?dis=dis-orange-orange-ros-300x250-repo-estoesahorrar.com/
+Disallow: /negocios/linea-credito/?sem=sem-google_content-solicitud-content-texto-linea_credito-ingdirect.es/negocios/linea-credito/
+Disallow: /sobre-ing/como-hacerse-cliente.html?rrss=rrss-marcos-ennaranja-actualidad_ing-post-dia_mundial_reciclaje_20170512-como_hacerse_cliente
+Disallow: /twyp/descargar-twyp-cash.html?sem=sem-google_search-br_sear_g_twypcash_marcapura_exact-twyp_cash-twyp_cash-exact-twyp_cash_trafico
+Disallow: /cuenta-nomina-ing/planamigo.html?rrss=rrss-20161026-Plan-AMIGO_Actualidad_ING
+Disallow: /fondos-inversion/perfil.html?rrss=rrss-20160922-ennaranja-comisionesfondos
+Disallow: /cuenta-sin-nomina-ing/?pid=STX
+Disallow: /cuenta-nomina-ing/plan-amigo.html?sem=sem-google_search-br_sear_g_tx_planamigo_marca_bmm-plan_amigo_ing_bmm-plan_amigo-broad-tx_plan_amigo&mkwid=shjHFQlRc%7Cpcrid%7C169521848823%7Cpkw%7C+plan%20+amigo%7Cpmt%7Cb%7Cpdv%7Cc%7C&mkwid=shjHFQlRc_169521848823_%2Bplan%20%2Bamigo_b_c&mtid=wamg3c0vf0&slid=&product_id=
+Disallow: /negocios/credito-negocios-10/caracteristicas.html?rrss=rrss-20160606-ennaranja-credito_negocios10
+Disallow: /hipotecas/simula-hipoteca.html?afl=afl-helpmycash-helpmycash-ros-boton_contratar-generic_perf-ingdirect.es/hipotecas/simula_hipoteca.html
+Disallow: /cuenta-nomina-ing/plan-amigo.html?sem=sem-google_search-br_sear_g_tx_planamigo_marca_bmm-plan_amigo_ing_bmm-plan_amigo-broad-tx_plan_amigo&mkwid=shjHFQlRc|pcrid|169521848823|pkw|+plan%20+amigo|pmt|b|pdv|c|&mkwid=shjHFQlRc_169521848823_%2Bplan%20%2Bamigo_b_c&mtid=wamg3c0vf0&slid=&product_id=
+Disallow: /hipotecas/simula-hipoteca.html?sem=sem-google_search-br_sear_g_hipoteca_hipotecaing_bmm-hipotecaing-hipotecasing-broad-hn_simulador&mkwid=sSfGm2lRF%7Cpcrid%7C103558712479%7Cpkw%7C+hipotecas%20+ing%7Cpmt%7Cb%7Cpdv%7Cc%7C&mkwid=sSfGm2lRF_103558712479_%2Bhipotecas%20%2Bing_b_c&mtid=wamg3c0vf0&slid=&product_id=
+Disallow: /twyp/descargar-app.html?micro-emotwyp
+Disallow: /fondos-inversion/ayuda/?rrss=rrss-20160201-ennaranja-caidas_petroleo
+Disallow: /cuenta-naranja/?dis=dis-unedisa-elmundo-ros-300x300-agua_330-ingdirect.es/cuenta_naranja/
+Disallow: /planes-pensiones/?rrss=rrss-dic15-ennaranja-planes_pensiones-10years_jubilacion
+Disallow: /twyp/descargar-twyp-cash.html?rrss=rrss-marcos-ennaranja-ahorradores-post-cashback_europa__20170316-Twyp_cash
+Disallow: /sobre-ing/pdf/BasesPlanAmigo.pdf
+Disallow: /sobre-ing/prensa/pdf/prensa031016.pdf
+Disallow: /sobre-ing/prensa/prensa091014.html
+Disallow: /sobre-ing/prensa/pdf/noticia010913.pdf
+Disallow: /sobre-ing/pdf/PlanIbex35/REG_PP_DINVAR.pdf
+Disallow: /sobre-ing/prensa/pdf/noticia301113.pdf
+Disallow: /sobre-ing/prensa/pdf/noticia060914.pdf
+Disallow: /sobre-ing/pdf/Fondo_Vontobel/FAB26_Regl.pdf
+Disallow: /sobre-ing/prensa/pdf/noticia240613.pdf
+Disallow: /sobre-ing/prensa/pdf/prensa190716.pdf
+Disallow: /sobre-ing/prensa/pdf/noticia110214.pdf
+Disallow: /herramientas/informacion-legal/pdf/ES0642090916-23102015-FI.pdf
+Disallow: /sobre-ing/pdf/Plan2040/REG_PP_DINVAR.pdf
+Disallow: /sobre-ing/pdf/Plan2025/REG_PP_DINVAR.pdf
+Disallow: /genoma/sobre-ing/pdf/TNS_ING_2011.pdf
+Disallow: /sobre-ing/prensa/pdf/noticia161213.pdf
+Disallow: /sobre-ing/pdf/Plan2030/REG_PP_DINVAR.pdf
+Disallow: /sobre-ing/prensa/pdf/noticia210114.pdf
+Disallow: /sobre-ing/prensa/pdf/prensa260215.pdf
+Disallow: /sobre-ing/pdf/FormularioReclamacionDGS.pdf
+Disallow: /herramientas/informacion-legal/pdf/ES06784309B3-01122016-FI.pdf
+Disallow: /genoma/sobre-ing/pdf/TNS_ING_2012.pdf
+Disallow: /sobre-ing/prensa/pdf/noticia110516.pdf
+Disallow: /sala-de-prensa/notas-de-prensa/prensa/pdf/prensa190716.pdf
+Disallow: /sala-de-prensa/notas-de-prensa/prensa/pdf/prensa031016.pdf
+Disallow: /sala-de-prensa/notas-de-prensa/prensa/pdf/prensa080916.pdf
+Disallow: /sala-de-prensa/notas-de-prensa/prensa/pdf/prensa180216.pdf
+Disallow: /sala-de-prensa/notas-de-prensa/prensa/pdf/prensa070316.pdf
+Disallow: /sala-de-prensa/notas-de-prensa/prensa/pdf/prensa120716.pdf
+Disallow: /sala-de-prensa/notas-de-prensa/prensa/pdf/prensa170216.pdf
+Disallow: /sala-de-prensa/notas-de-prensa/prensa/pdf/prensa270916.pdf
+Disallow: /sala-de-prensa/notas-de-prensa/prensa/pdf/prensa150316.pdf
+Disallow: /sala-de-prensa/notas-de-prensa/prensa/pdf/prensa160616.pdf
+
+Disallow: /sobre-ing/bienvenido.html
+Disallow: index.html
+
+
+
+
+Disallow: cuenta-nomina-ing/planamigo.html?rrss=rrss-20161026-Plan-AMIGO_Actualidad_ING
+
+Disallow: /twyp/descargar-app-activanavidad.html
+Disallow: /twyp/twyp-promo.html
+Disallow: /twyp/invitacion.html
+Disallow: /twyp/descargar-app-navidad.html
+Disallow: /twyp/descargar-app.html
+Disallow: /twyp/comparte-twyp.html
+Disallow: /descarga-twyp/
+Disallow: /cuenta-nomina-ing/twyp-cuenta-nomina.html
+Disallow: /tarjetas/index.html
+Disallow: https://ing.ingdirect.es/pfm/#login/credentials
+Disallow: /app-login/
+
+Disallow: /twyp/descargar-twyp-cash.html
+Disallow: /twyp/descubretwypcash/index.html
+Disallow: /hipotecas/simula-hipoteca.html
+Disallow: /hipotecas/plan-amigo.html
+Disallow: /hipotecas/elige-hipoteca.html
+Disallow: /hipotecas/calcula-hipoteca.html
+Disallow: /hipotecas/hipotecamixta.html
+Disallow: /hipotecas/compartir-hipoteca-naranja.html
+Disallow: /hipotecas/calcula-hipoteca-naranja.html
+Disallow: /hipotecas/calcula-hipoteca-faqs.html
+Disallow: /hipotecas/compartir-plan-amigo.html
+Disallow: /hipotecas/hipoteca-naranja-mixta.html
+Disallow: /hipotecas/elegir-bien.html
+
+Disallow: /sobre-ing/lightbox-semaforo-planes.html
+Disallow: /sobre-ing/lightbox-semaforo.html
+Disallow: /broker/popups/canones-de-mercado.html
+Disallow: https://ing.ingdirect.es/pfm/#login/
+Disallow: /broker/bolsa.html
+Disallow: /broker/bolsa-ing.html
+Disallow: /broker/contratar.html
+Disallow: /broker/inversion.html
+Disallow: /broker/invertir.html
+Disallow: /comun/infografia/
+Disallow: /dating/index.html
+Disallow: /hipotecas/pedir.html
+Disallow: /prestamos-personales/calcula-cuota.html
+Disallow: /prestamos-personales/prestamo-coche.html
+Disallow: /sobre-ing/pdf/modelo-reclamacion.pdf
+Disallow: /sobre-ing/pdf/RegDefensaCliente.pdf
+Disallow: /sobre-ing/hazte-cliente.html
+Disallow: /twyp/twyp-cash.html
+Disallow: /my-money-coach/index.html
+
+
+Disallow: /fondos-inversion/renta-fija.html
+Disallow: /fondos-inversion/perfil.html
+Disallow: /fondos-inversion/renta-variable.html
+Disallow: /fondos-inversion/caracteristicas.html
+Disallow: /fondos-inversion/asesoramiento.html
+Disallow: /planes-pensiones/ventajas.html
+Disallow: /planes-pensiones/caracteristicas.html
+
+Disallow: /my-money-coach/consigue-tu-objetivo.html
+Disallow: /my-money-coach/consigue-tu-propuesta.html
+Disallow: /my-money-coach/elige-como-continuar.html
+Disallow: /my-money-coach/mmc-pp.html
+Disallow: /my-money-coach/mmc.html
+
+Disallow: /cuenta-nomina-ing/abrir-cuenta-tvca1.html
+Disallow: /cuenta-nomina-ing/abrir-cuenta-tvca2.html
+Disallow: /cuenta-nomina-ing/abrir-cuenta-tvcb1.html
+Disallow: /cuenta-nomina-ing/abrir-cuenta-tvcb2.html
+Disallow: /cuenta-nomina-ing/candidatos.html
+Disallow: /cuenta-nomina-ing/caracteristicas-deposito.html
+Disallow: /cuenta-nomina-ing/empleados.html
+Disallow: /cuenta-nomina-ing/ventajas-cuenta-nomina.html
+Disallow: /cuenta-nomina-ing/sin-comisiones.html
+Disallow: /cuenta-nomina-ing/caracteristicas-cuenta-nomina.html
+Disallow: /cuenta-nomina-ing/caracteristicas.html
+Disallow: /cuenta-nomina-ing/ventajas.html
+Disallow: /cuenta-nomina-ing/ventajas-plan-amigo.html
+Disallow: /cuenta-nomina-ing/caracteristicas-nomina.html#
+Disallow: /cuenta-nomina-ing/sin-comisiones.html
+Disallow: /cuenta-nomina-ing/plan-amigo.html
+
+Disallow: /cuenta-naranja/abrir-cuenta-tvca1.html
+Disallow: /cuenta-naranja/abrir-cuenta-tvca2.html
+Disallow: /cuenta-naranja/abrir-cuenta-tvcb1.html
+Disallow: /cuenta-naranja/abrir-cuenta-tvcb2.html
+Disallow: /cuenta-naranja/caracteristicas.html
+Disallow: /cuenta-naranja/club-ahorradores-dosporciento.html
+Disallow: /cuenta-naranja/club-ahorradores-ventajas.html
+Disallow: /cuenta-naranja/simulador.html
+Disallow: /cuenta-negocios/caracteristicas.html
+Disallow: /negocios/credito-negocios-10/caracteristicas.html
+
+Disallow: /cuenta-nomina-ing/contrata.html
+Disallow: /cuenta-nomina-ing/popup-contratar-cn.html
+
+Disallow: /sobre-ing/hazte-cliente.html
+Disallow: /prestamos-personales/prestamo-pareja.html
+Disallow: /prestamos-personales/prestamo-easter.html
+
+Disallow: /ucookie.html
+Disallow: /tarjetas-ing/credito/compra-aplazada.html
+Disallow: /tarjetas-ing/credito/compra-aplazada-promo-2.html
+Disallow: /tarjetas-ing/credito/compra-aplazada-promo-5.html
+Disallow: /fondos-inversion/modo-facil.html
+
+Disallow: /genoma/cuenta-sin-nomina-ing/ 
+Disallow: /genoma/
+
+
+
+
+Sitemap: https://www.ing.es/sitemap_v1.xml
+
+
+

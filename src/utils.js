@@ -3,13 +3,17 @@ const imagemin = require('imagemin')
 const imageminWebp = require('imagemin-webp')
 const fs = require('fs')
 const request = require('request-promise')
+const robotsParse = require('robots-parse')
 const { zip } = require('zip-a-folder')
+const { parser } = require('robots-parse')
 const MAX_URL_FILENAME_LENGTH = 100
 
 module.exports = {
   getPageHrefs,
   minimiseImages,
-  zipImages
+  zipImages,
+  robotsParsePromise,
+  extractURLsFromRobots
 }
 
 async function zipImages () {
@@ -74,8 +78,14 @@ async function firstTimeVisit (url) {
 async function handleUrl (page, url) {
   try {
     if (!url.endsWith('pdf')) {
-      await page.goto(url)
-      await takeScreenshot(page, url)
+      const response = await page.goto(url)
+      console.log('response.status: ', response.status())
+      if (response.status() !== 404) {
+        await takeScreenshot(page, url)
+        return await page.content()
+      } else {
+        throw new Error('404')
+      }
     } else {
       await request(url).pipe(fs.createWriteStream('./screenshots/' + getUrlToFileName(url)))
       return ''
@@ -92,9 +102,8 @@ async function requestHtmlBody (url, brokenUrls) {
     if (!page) {
       page = await firstTimeVisit(url)
     }
-    await handleUrl(page, url)
+    return await handleUrl(page, url)
   } catch (error) {
-    // console.error('URL failed: ', url)
     console.error(error)
     brokenUrls.push(url)
     return ''
@@ -124,6 +133,7 @@ function filterUrls (urls, whitelist, filetypeBlacklist) {
       const url = new URL(thisUrl)
       return isWhitelisted(url, whitelist) && hasNotBlacklistedFiletype(url, filetypeBlacklist)
     } catch {
+      console.log('URL is filtered out: ', thisUrl)
       return false
     }
   })
@@ -134,10 +144,9 @@ async function getPageHrefs (url, whitelist, filetypeBlacklist, brokenUrls) {
   const html = await requestHtmlBody(url, brokenUrls)
 
   if (!html) {
+    console.log('No HTML is used for this URL: ', url)
     return []
   }
-
-  console.log('HTML: ', html)
 
   // Parse it and extract hrefs out of all anchors
   const hrefs = extractAnchorsHrefs(html)
@@ -152,4 +161,33 @@ async function getPageHrefs (url, whitelist, filetypeBlacklist, brokenUrls) {
   const uniqueUrls = [...new Set(filteredHrefs)]
 
   return uniqueUrls
+}
+
+function robotsParsePromise (url) {
+  return new Promise((resolve, reject) => {
+    robotsParse(url, (error, answer) => {
+      if (error) {
+        reject(error)
+      } else {
+        resolve(answer)
+      }
+    })
+  })
+}
+
+function extractURLsFromRobots () {
+  // This should be https://www.ing.es/robots.txt but as the
+  // robots.txt has the wrong format, let's fix and use it locally
+  const robotsTxt = fs.readFileSync('./robots.txt', 'utf-8')
+  const robots = parser(robotsTxt)
+
+  // Disallow URLs
+  // TODO remove domain from here moving on, when using real remote
+  const robotsDisallowURLs = robots.disallow.map(url => 'https://www.ing.es' + url)
+
+  // Sitemaps
+  const robotsSitemaps = robots.sitemaps
+  console.log('robotsSitemaps: ', robotsSitemaps)
+
+  return robotsDisallowURLs
 }
