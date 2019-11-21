@@ -6,31 +6,33 @@ const request = require('request')
 const robotsParse = require('robots-parse')
 const { zip } = require('zip-a-folder')
 const { parser } = require('robots-parse')
+const path = require('path')
 const MAX_URL_FILENAME_LENGTH = 100
 
 module.exports = {
   getPageHrefs,
   minimiseImages,
-  zipImages,
+  zipBackup,
   robotsParsePromise,
-  extractURLsFromRobots
+  extractURLsFromRobots,
+  createDirectories
 }
 
-async function zipImages () {
+async function zipBackup (folder) {
   try {
-    const destination = `dist/screenshots-${new Date().toISOString()}.zip`
-    await zip('dist/optimised', destination)
-    console.log(`Images zipped in ${destination}`)
+    const fileName = `backup-${new Date().toISOString()}.zip`
+    await zip(folder, fileName)
+    console.log(`Images zipped in ${fileName}`)
   } catch {
     console.log('Error zipping images')
   }
 }
 
-async function minimiseImages () {
+async function minimiseImages (destination) {
   try {
     await imagemin(['screenshots/*.png'],
       {
-        destination: 'dist/optimised',
+        destination: path.join(destination, 'screenshots'),
         plugins: [
           imageminWebp({
             quality: 10
@@ -64,6 +66,7 @@ async function takeScreenshot (page, url) {
 async function firstTimeVisit (url) {
   const browser = await puppeteer.launch()
   const page = await browser.newPage()
+  page.setDefaultTimeout(3000)
   try {
     await page.goto(url)
     // For the cookie notice
@@ -75,10 +78,10 @@ async function firstTimeVisit (url) {
   return page
 }
 
-async function handleUrl (page, url) {
+async function handleUrl (page, url, destinationFolder) {
   if (!url.endsWith('pdf')) {
     const response = await page.goto(url)
-    console.log('response.status:', response.status())
+    console.log('Status:', response.status())
     if (response.status() < 400) {
       await takeScreenshot(page, url)
       const content = await page.content()
@@ -87,7 +90,7 @@ async function handleUrl (page, url) {
       throw new Error(response.status())
     }
   } else {
-    const fileName = './screenshots/' + getUrlToFileName(url)
+    const fileName = `./${destinationFolder}/pdfs/${getUrlToFileName(url)}`
     return new Promise(function (resolve, reject) {
       request
         .get(url, { timeout: 3000 })
@@ -95,7 +98,7 @@ async function handleUrl (page, url) {
           console.log(err)
           reject(err)
         })
-        .on('response', () => resolve())
+        .on('response', () => resolve(''))
         .pipe(fs.createWriteStream(fileName))
     })
   }
@@ -103,12 +106,12 @@ async function handleUrl (page, url) {
 
 let page
 
-async function requestHtmlBody (url, brokenUrls) {
+async function requestHtmlBody (url, brokenUrls, destinationFolder) {
   try {
     if (!page) {
       page = await firstTimeVisit(url)
     }
-    return await handleUrl(page, url)
+    return await handleUrl(page, url, destinationFolder)
   } catch (error) {
     console.error(error)
     brokenUrls.push(url)
@@ -145,9 +148,9 @@ function filterUrls (urls, whitelist, filetypeBlacklist) {
   })
 }
 
-async function getPageHrefs (url, whitelist, filetypeBlacklist, brokenUrls) {
+async function getPageHrefs (url, whitelist, filetypeBlacklist, brokenUrls, destinationFolder) {
   // Get HTML string out of a public URL and make a save a screenshot of it
-  const html = await requestHtmlBody(url, brokenUrls)
+  const html = await requestHtmlBody(url, brokenUrls, destinationFolder)
 
   if (!html) {
     console.log('No HTML is used for this URL: ', url)
@@ -196,4 +199,9 @@ function extractURLsFromRobots () {
   console.log('robotsSitemaps: ', robotsSitemaps)
 
   return robotsDisallowURLs
+}
+
+function createDirectories (destination) {
+  fs.mkdirSync(destination)
+  fs.mkdirSync(path.join(destination, 'pdfs'))
 }

@@ -7,7 +7,7 @@
     "lint": "standard",
     "lint:fix": "standard --fix",
     "start": "node dist/main.js",
-    "clean": "rimraf dist && rimraf screenshots/*",
+    "clean": "rimraf dist && rimraf screenshots/* && rimraf output",
     "dev": "npm run build && npm run start",
     "dev:watch": "nodemon --watch src --exec npm run dev",
     "prebuild": "npm run clean",

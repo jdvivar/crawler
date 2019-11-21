@@ -3,3 +3,5 @@ dist
 *.log
 screenshots
 .DS_Store
+output
+backup*
