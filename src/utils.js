@@ -3,17 +3,16 @@ const imagemin = require('imagemin')
 const imageminWebp = require('imagemin-webp')
 const fs = require('fs')
 const request = require('request')
-const robotsParse = require('robots-parse')
 const { zip } = require('zip-a-folder')
-const { parser } = require('robots-parse')
+const robotsParser = require('robots-parse')
 const path = require('path')
+const sitemapsParser = require('sitemap-stream-parser')
 const MAX_URL_FILENAME_LENGTH = 100
 
 module.exports = {
   getPageHrefs,
   minimiseImages,
   zipBackup,
-  robotsParsePromise,
   extractURLsFromRobots,
   createDirectories
 }
@@ -52,6 +51,7 @@ function getUrlToFileName (url) {
 
 async function takeScreenshot (page, url) {
   try {
+    if (!fs.existsSync('screenshots')) fs.mkdirSync('screenshots')
     const path = './screenshots/' + getUrlToFileName(url) + '.png'
     await page.screenshot({
       path,
@@ -172,33 +172,39 @@ async function getPageHrefs (url, whitelist, filetypeBlacklist, brokenUrls, dest
   return uniqueUrls
 }
 
-function robotsParsePromise (url) {
-  return new Promise((resolve, reject) => {
-    robotsParse(url, (error, answer) => {
-      if (error) {
-        reject(error)
+async function sitemapsParse (sitemaps) {
+  const sitemapsURLs = []
+
+  function handleSitemapUrl (url) {
+    sitemapsURLs.push(url)
+  }
+  return new Promise(function (resolve, reject) {
+    sitemapsParser.parseSitemaps(sitemaps, handleSitemapUrl, (err) => {
+      if (err) {
+        reject(err)
       } else {
-        resolve(answer)
+        resolve(sitemapsURLs)
       }
     })
   })
 }
 
-function extractURLsFromRobots () {
+async function extractURLsFromRobots () {
   // This should be https://www.ing.es/robots.txt but as the
   // robots.txt has the wrong format, let's fix and use it locally
   const robotsTxt = fs.readFileSync('./robots.txt', 'utf-8')
-  const robots = parser(robotsTxt)
+  const robots = robotsParser.parser(robotsTxt)
 
   // Disallow URLs
   // TODO remove domain from here moving on, when using real remote
   const robotsDisallowURLs = robots.disallow.map(url => 'https://www.ing.es' + url)
 
   // Sitemaps
-  const robotsSitemaps = robots.sitemaps
-  console.log('robotsSitemaps: ', robotsSitemaps)
+  const sitemapsURLs = await sitemapsParse(robots.sitemaps)
 
-  return robotsDisallowURLs
+  const allURLsFromRobots = [...new Set(robotsDisallowURLs.concat(sitemapsURLs))]
+
+  return allURLsFromRobots
 }
 
 function createDirectories (destination) {

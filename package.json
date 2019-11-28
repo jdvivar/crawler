@@ -7,7 +7,7 @@
     "lint": "standard",
     "lint:fix": "standard --fix",
     "start": "node dist/main.js",
-    "clean": "rimraf dist && rimraf screenshots/* && rimraf output",
+    "clean": "rimraf dist && rimraf screenshots && rimraf output",
     "dev": "npm run build && npm run start",
     "dev:watch": "nodemon --watch src --exec npm run dev",
     "prebuild": "npm run clean",
@@ -23,6 +23,7 @@
     "puppeteer": "^2.0.0",
     "request": "^2.88.0",
     "robots-parse": "0.0.6",
+    "sitemap-stream-parser": "^1.7.0",
     "zip-a-folder": "0.0.9"
   },
   "devDependencies": {

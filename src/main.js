@@ -21,7 +21,7 @@ async function main () {
   utils.createDirectories(destinationFolder)
 
   // Extract URLs from robots
-  pendingUrls = pendingUrls.concat(utils.extractURLsFromRobots())
+  pendingUrls = pendingUrls.concat(await utils.extractURLsFromRobots())
 
   while (pendingUrls.length) {
     const thisUrl = pendingUrls.pop()
