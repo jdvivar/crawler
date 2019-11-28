@@ -4,7 +4,7 @@ const imageminWebp = require('imagemin-webp')
 const fs = require('fs')
 const request = require('request')
 const { zip } = require('zip-a-folder')
-const robotsParser = require('robots-parse')
+const robotsParse = require('robots-parse')
 const path = require('path')
 const sitemapsParser = require('sitemap-stream-parser')
 const MAX_URL_FILENAME_LENGTH = 100
@@ -127,7 +127,9 @@ function extractAnchorsHrefs (html) {
 }
 
 function makeAbsoluteUrls (urls, origin) {
-  return urls.map(url => url.startsWith('/') ? (origin + url) : url)
+  // if url starts with /, then use that directly, otherwise
+  // use origin + url, but if origin ends with / then remove the slash first
+  return urls.map(url => url.startsWith('/') ? (origin.endsWith('/') ? origin.slice(0, -1) : origin + url) : url)
 }
 
 function filterUrls (urls, whitelist, filetypeBlacklist) {
@@ -189,21 +191,16 @@ async function sitemapsParse (sitemaps) {
   })
 }
 
-async function extractURLsFromRobots () {
-  // This should be https://www.ing.es/robots.txt but as the
-  // robots.txt has the wrong format, let's fix and use it locally
-  const robotsTxt = fs.readFileSync('./robots.txt', 'utf-8')
-  const robots = robotsParser.parser(robotsTxt)
-
-  // Disallow URLs
-  // TODO remove domain from here moving on, when using real remote
-  const robotsDisallowURLs = robots.disallow.map(url => 'https://www.ing.es' + url)
+async function extractURLsFromRobots (origin) {
+  // Robots
+  const robots = await robotsParse(origin)
+  const robotsDisallowURLs = robots.disallow.map(url => origin + url)
 
   // Sitemaps
   const sitemapsURLs = await sitemapsParse(robots.sitemaps)
 
+  // Concatenate all
   const allURLsFromRobots = [...new Set(robotsDisallowURLs.concat(sitemapsURLs))]
-
   return allURLsFromRobots
 }
 

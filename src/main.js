@@ -1,6 +1,7 @@
 const utils = require('./utils')
 const { performance } = require('perf_hooks')
 
+// Only use one, as it will be used by robots parser as origin
 let pendingUrls = ['https://www.ing.es/']
 const visitedUrls = []
 const brokenUrls = []
@@ -21,7 +22,7 @@ async function main () {
   utils.createDirectories(destinationFolder)
 
   // Extract URLs from robots
-  pendingUrls = pendingUrls.concat(await utils.extractURLsFromRobots())
+  pendingUrls = pendingUrls.concat(await utils.extractURLsFromRobots(pendingUrls[0]))
 
   while (pendingUrls.length) {
     const thisUrl = pendingUrls.pop()
