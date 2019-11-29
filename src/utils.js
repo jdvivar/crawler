@@ -15,8 +15,12 @@ module.exports = {
   minimiseImages,
   zipBackup,
   extractURLsFromRobots,
-  createDirectories
+  createDirectories,
+  closePuppeteer
 }
+
+let browser
+let page
 
 async function zipBackup (folder) {
   try {
@@ -68,8 +72,9 @@ async function takeScreenshot (page, url) {
 }
 
 async function firstTimeVisit (url) {
-  const browser = await puppeteer.launch()
-  const page = await browser.newPage()
+  console.log('first time visit')
+  browser = await puppeteer.launch()
+  page = await browser.newPage()
   page.setDefaultTimeout(3000)
   try {
     await page.goto(url)
@@ -79,13 +84,12 @@ async function firstTimeVisit (url) {
   } catch {
     signale.warn({ prefix: '[VISITING  ]', message: 'No cookie button' })
   }
-  return page
 }
 
-async function handleUrl (page, url, destinationFolder) {
+async function handleUrl (url, destinationFolder) {
   if (!url.endsWith('pdf')) {
     const response = await page.goto(url)
-    signale.info({ prefix: '[VISITING  ]', message: `Received HTML ${response.status()}` })
+    signale.success({ prefix: '[VISITING  ]', message: `Received HTML ${response.status()}` })
     if (response.status() < 400) {
       await takeScreenshot(page, url)
       const content = await page.content()
@@ -103,7 +107,7 @@ async function handleUrl (page, url, destinationFolder) {
           reject(error)
         })
         .on('response', () => {
-          signale.info({ prefix: '[VISITING  ]', message: 'Received PDF' })
+          signale.success({ prefix: '[VISITING  ]', message: 'Received PDF' })
           resolve('')
         })
         .pipe(fs.createWriteStream(fileName))
@@ -111,14 +115,12 @@ async function handleUrl (page, url, destinationFolder) {
   }
 }
 
-let page
-
 async function requestHtmlBody (url, brokenUrls, destinationFolder) {
   try {
     if (!page) {
-      page = await firstTimeVisit(url)
+      await firstTimeVisit(url)
     }
-    return await handleUrl(page, url, destinationFolder)
+    return await handleUrl(url, destinationFolder)
   } catch (error) {
     signale.fatal(error)
     brokenUrls.push(url)
@@ -214,4 +216,8 @@ async function extractURLsFromRobots (origin) {
 function createDirectories (destination) {
   fs.mkdirSync(destination)
   fs.mkdirSync(path.join(destination, 'pdfs'))
+}
+
+async function closePuppeteer () {
+  if (browser) await browser.close()
 }
