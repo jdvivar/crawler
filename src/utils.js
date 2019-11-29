@@ -9,6 +9,7 @@ const path = require('path')
 const sitemapsParser = require('sitemap-stream-parser')
 const signale = require('signale')
 const MAX_URL_FILENAME_LENGTH = 100
+const TIMEOUT = 5000
 
 module.exports = {
   getPageHrefs,
@@ -75,7 +76,7 @@ async function firstTimeVisit (url) {
   console.log('first time visit')
   browser = await puppeteer.launch()
   page = await browser.newPage()
-  page.setDefaultTimeout(3000)
+  page.setDefaultTimeout(TIMEOUT)
   try {
     await page.goto(url)
     // For the cookie notice
@@ -101,7 +102,7 @@ async function handleUrl (url, destinationFolder) {
     const fileName = `./${destinationFolder}/pdfs/${getUrlToFileName(url)}`
     return new Promise(function (resolve, reject) {
       request
-        .get(url, { timeout: 3000 })
+        .get(url, { timeout: TIMEOUT })
         .on('error', error => {
           signale.fatal(error)
           reject(error)
