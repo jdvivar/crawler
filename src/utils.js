@@ -7,6 +7,7 @@ const { zip } = require('zip-a-folder')
 const robotsParse = require('robots-parse')
 const path = require('path')
 const sitemapsParser = require('sitemap-stream-parser')
+const signale = require('signale')
 const MAX_URL_FILENAME_LENGTH = 100
 
 module.exports = {
@@ -21,9 +22,10 @@ async function zipBackup (folder) {
   try {
     const fileName = `backup-${new Date().toISOString()}.zip`
     await zip(folder, fileName)
-    console.log(`Images zipped in ${fileName}`)
-  } catch {
-    console.log('Error zipping images')
+    signale.star({ prefix: '[ZIP BACKUP]', message: `Images zipped in ${fileName}` })
+  } catch (e) {
+    signale.error({ prefix: '[ZIP BACKUP]', message: 'Error zipping images' })
+    signale.fatal(e)
   }
 }
 
@@ -39,9 +41,10 @@ async function minimiseImages (destination) {
         ]
       }
     )
-    console.log('Images optimized')
-  } catch {
-    console.log('Error optimising images')
+    signale.star({ prefix: '[COMPRESS IMAGES]', message: 'Images optimised' })
+  } catch (e) {
+    signale.error({ prefix: '[COMPRESS IMAGES]', message: 'Error optimising images' })
+    signale.fatal(e)
   }
 }
 
@@ -57,9 +60,10 @@ async function takeScreenshot (page, url) {
       path,
       fullPage: true
     })
-    console.log(`Screenshot saved at ${path}`)
-  } catch {
-    console.log('Screenshot failed')
+    signale.note({ prefix: '[SCREENSHOT]', message: `Screenshot saved at ${path}` })
+  } catch (e) {
+    signale.error({ prefix: '[SCREENSHOT]', message: 'Screenshot failed' })
+    signale.fatal(e)
   }
 }
 
@@ -73,7 +77,7 @@ async function firstTimeVisit (url) {
     await takeScreenshot(page, 'cookie')
     await page.click('#aceptar')
   } catch {
-    console.log('No cookie button')
+    signale.warn({ prefix: '[VISITING  ]', message: 'No cookie button' })
   }
   return page
 }
@@ -81,7 +85,7 @@ async function firstTimeVisit (url) {
 async function handleUrl (page, url, destinationFolder) {
   if (!url.endsWith('pdf')) {
     const response = await page.goto(url)
-    console.log('Status:', response.status())
+    signale.info({ prefix: '[VISITING  ]', message: `Received HTML ${response.status()}` })
     if (response.status() < 400) {
       await takeScreenshot(page, url)
       const content = await page.content()
@@ -94,11 +98,14 @@ async function handleUrl (page, url, destinationFolder) {
     return new Promise(function (resolve, reject) {
       request
         .get(url, { timeout: 3000 })
-        .on('error', function (err) {
-          console.log(err)
-          reject(err)
+        .on('error', error => {
+          signale.fatal(error)
+          reject(error)
         })
-        .on('response', () => resolve(''))
+        .on('response', () => {
+          signale.info({ prefix: '[VISITING  ]', message: 'Received PDF' })
+          resolve('')
+        })
         .pipe(fs.createWriteStream(fileName))
     })
   }
@@ -113,7 +120,7 @@ async function requestHtmlBody (url, brokenUrls, destinationFolder) {
     }
     return await handleUrl(page, url, destinationFolder)
   } catch (error) {
-    console.error(error)
+    signale.fatal(error)
     brokenUrls.push(url)
     return ''
   }
@@ -144,7 +151,7 @@ function filterUrls (urls, whitelist, filetypeBlacklist) {
       const url = new URL(thisUrl)
       return isWhitelisted(url, whitelist) && hasNotBlacklistedFiletype(url, filetypeBlacklist)
     } catch {
-      console.log('URL is filtered out: ', thisUrl)
+      signale.warn({ prefix: '[VISITING  ]', message: `Filtered out: ${thisUrl}` })
       return false
     }
   })
@@ -155,7 +162,7 @@ async function getPageHrefs (url, whitelist, filetypeBlacklist, brokenUrls, dest
   const html = await requestHtmlBody(url, brokenUrls, destinationFolder)
 
   if (!html) {
-    console.log('No HTML is used for this URL: ', url)
+    signale.warn({ prefix: '[VISITING  ]', message: `No HTML is used for this URL: ${url}` })
     return []
   }
 

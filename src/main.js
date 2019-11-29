@@ -1,5 +1,6 @@
 const utils = require('./utils')
 const { performance } = require('perf_hooks')
+const signale = require('signale')
 
 // Only use one, as it will be used by robots parser as origin
 let pendingUrls = ['https://www.ing.es/']
@@ -17,7 +18,7 @@ const destinationFolder = 'output'
 async function main () {
   const executionStart = performance.now()
 
-  console.log('ing-es-cms-crawler starting...\n')
+  signale.start('ing-es-cms-crawler starting...')
 
   utils.createDirectories(destinationFolder)
 
@@ -27,8 +28,8 @@ async function main () {
   while (pendingUrls.length) {
     const thisUrl = pendingUrls.pop()
     visitedUrls.push(thisUrl)
-    console.log('Visiting: ', thisUrl)
-    console.log('Pending: ', pendingUrls.length)
+    signale.info({ prefix: '[VISITING  ]', message: thisUrl })
+    signale.info({ prefix: '[VISITING  ]', message: `Pending ${pendingUrls.length} URL(s)` })
     const extractedUrls = await utils.getPageHrefs(thisUrl, domainWhitelist, filetypeBlacklist, brokenUrls, destinationFolder)
     const newUrls = extractedUrls.filter(url => !visitedUrls.includes(url))
     pendingUrls = [...new Set(pendingUrls.concat(newUrls))]

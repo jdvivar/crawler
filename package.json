@@ -23,6 +23,7 @@
     "puppeteer": "^2.0.0",
     "request": "^2.88.0",
     "robots-parse": "0.0.6",
+    "signale": "^1.4.0",
     "sitemap-stream-parser": "^1.7.0",
     "zip-a-folder": "0.0.9"
   },
