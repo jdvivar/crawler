@@ -73,7 +73,6 @@ async function takeScreenshot (page, url) {
 }
 
 async function firstTimeVisit (url) {
-  console.log('first time visit')
   browser = await puppeteer.launch()
   page = await browser.newPage()
   page.setDefaultTimeout(TIMEOUT)
