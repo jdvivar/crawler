@@ -35,8 +35,8 @@ async function main () {
   while (pendingUrls.length) {
     const thisUrl = pendingUrls.pop()
     visitedUrls.push(thisUrl)
-    signale.info({ prefix: '[VISITING  ]', message: thisUrl })
     signale.info({ prefix: '[VISITING  ]', message: `Pending ${pendingUrls.length} URL(s)` })
+    signale.info({ prefix: '[VISITING  ]', message: thisUrl })
     const extractedUrls = await utils.getPageHrefs(thisUrl, domainWhitelist, filetypeBlacklist, brokenUrls, destinationFolder)
     const newUrls = extractedUrls.filter(url => !visitedUrls.includes(url))
     pendingUrls = [...new Set(pendingUrls.concat(newUrls))]

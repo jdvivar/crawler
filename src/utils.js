@@ -89,12 +89,17 @@ async function firstTimeVisit (url) {
 async function handleUrl (url, destinationFolder) {
   if (!url.endsWith('pdf')) {
     const response = await page.goto(url)
-    signale.success({ prefix: '[VISITING  ]', message: `Received HTML ${response.status()}` })
+    if (!response) {
+      signale.error({ prefix: '[VISITING  ]', message: `No response received from ${url}` })
+      throw new Error('No response received')
+    }
     if (response.status() < 400) {
+      signale.success({ prefix: '[VISITING  ]', message: `Received HTML ${response.status()}` })
       await takeScreenshot(page, url)
       const content = await page.content()
       return content
     } else {
+      signale.error({ prefix: '[VISITING  ]', message: `Error receiving HTML ${response.status()}` })
       throw new Error(response.status())
     }
   } else {
@@ -122,7 +127,7 @@ async function requestHtmlBody (url, brokenUrls, destinationFolder) {
     }
     return await handleUrl(url, destinationFolder)
   } catch (error) {
-    signale.fatal(error)
+    signale.error({ prefix: '[VISITING  ]', message: `Adding to broken URLs list: ${url}` })
     brokenUrls.push(url)
     return ''
   }
