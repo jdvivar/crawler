@@ -72,8 +72,24 @@ async function takeScreenshot (page, url) {
   }
 }
 
+function getChromiumPath () {
+  const isWindows = (process.platform === 'win32')
+  const isMacOS = (process.platform === 'darwin')
+  const isLinux = (process.platform === 'linux')
+
+  if (isLinux) return 'chromium/chrome-linux/chrome'
+  if (isMacOS) return 'chromium/chrome-mac/Chromium.app/Contents/MacOS/Chromium'
+  if (isWindows) return 'chromium/chrome-win/chrome.exe'
+
+  throw new Error('OS not supported')
+}
+
 async function firstTimeVisit (url) {
-  browser = await puppeteer.launch()
+  try {
+    browser = await puppeteer.launch({ executablePath: getChromiumPath() })
+  } catch (e) {
+    signale.fatal(e)
+  }
   page = await browser.newPage()
   page.setDefaultTimeout(TIMEOUT)
   try {
