@@ -77,9 +77,9 @@ function getChromiumPath () {
   const isMacOS = (process.platform === 'darwin')
   const isLinux = (process.platform === 'linux')
 
-  if (isLinux) return 'chromium/chrome-linux/chrome'
-  if (isMacOS) return 'chromium/chrome-mac/Chromium.app/Contents/MacOS/Chromium'
-  if (isWindows) return 'chromium/chrome-win/chrome.exe'
+  if (isLinux) return path.join('chromium', 'chrome-linux', 'chrome')
+  if (isMacOS) return path.join('chromium', 'chrome-mac', 'Chromium.app', 'Contents', 'MacOS', 'Chromium')
+  if (isWindows) return path.join('chromium', 'chrome-win', 'chrome.exe')
 
   throw new Error('OS not supported')
 }
