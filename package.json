@@ -48,7 +48,8 @@
   "standard": {
     "env": "node",
     "ignore": [
-      "dist/"
+      "dist/",
+      "chromium/"
     ],
     "globals": []
   }
