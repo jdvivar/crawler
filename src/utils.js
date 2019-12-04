@@ -78,6 +78,7 @@ function getChromiumPath () {
   const isMacOS = (process.platform === 'darwin')
   const isLinux = (process.platform === 'linux')
 
+  if (process.env.pptrExecutablePath) return process.env.pptrExecutablePath
   if (isLinux) return path.join('chromium', 'chrome-linux', 'chrome')
   if (isMacOS) return path.join('chromium', 'chrome-mac', 'Chromium.app', 'Contents', 'MacOS', 'Chromium')
   if (isWindows) return path.join('chromium', 'chrome-win', 'chrome.exe')
@@ -88,7 +89,6 @@ function getChromiumPath () {
 async function firstTimeVisit (url) {
   try {
     browser = await puppeteer.launch({ executablePath: getChromiumPath() })
-    // browser = await puppeteer.launch({ executablePath: path.join('C:/Program Files (x86)/Google/Chrome/Application/Chrome.exe') })
   } catch (e) {
     signale.fatal(e)
   }
