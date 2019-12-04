@@ -1,14 +1,16 @@
+#!/usr/bin/env node
 const utils = require('./utils')
 const { performance } = require('perf_hooks')
 const signale = require('signale')
 
 // Only use one, as it will be used by robots parser as origin
-let pendingUrls = ['https://www.ing.es/']
+let pendingUrls = []
 const visitedUrls = []
 const brokenUrls = []
 
 const domainWhitelist = [
-  'ing.es'
+  'ing.es',
+  'ing.net'
 ]
 
 const filetypeBlacklist = []
@@ -16,6 +18,14 @@ const filetypeBlacklist = []
 const destinationFolder = 'output'
 
 async function main () {
+  if (!process.env.url) {
+    console.log(process.env.url)
+    signale.fatal('Please provide a URL to start from, like so: url=https://www.ing.es/ node run dev')
+    process.exit(0)
+  } else {
+    pendingUrls.push(process.env.url)
+  }
+
   // Handling premature closing (e.g. Ctrl + C)
   process.on('exit', (code) => {
     if (code !== 0) signale.fatal('Exiting prematurely. Remember to manually close Chromium processes.')

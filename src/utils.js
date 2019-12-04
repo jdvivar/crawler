@@ -10,6 +10,7 @@ const sitemapsParser = require('sitemap-stream-parser')
 const signale = require('signale')
 const MAX_URL_FILENAME_LENGTH = 100
 const TIMEOUT = 5000
+const USER_AGENT = 'Mozilla/5.0 (X11; CrOS x86_64 10066.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Safari/537.36'
 
 module.exports = {
   getPageHrefs,
@@ -25,7 +26,7 @@ let page
 
 async function zipBackup (folder) {
   try {
-    const fileName = `backup-${new Date().toISOString()}.zip`
+    const fileName = `backup-${new Date().toISOString().replace(':', '-')}.zip`
     await zip(folder, fileName)
     signale.star({ prefix: '[ZIP BACKUP]', message: `Images zipped in ${fileName}` })
   } catch (e) {
@@ -36,7 +37,7 @@ async function zipBackup (folder) {
 
 async function minimiseImages (destination) {
   try {
-    await imagemin(['screenshots/*.png'],
+    await imagemin([path.join('screenshots/*.png')],
       {
         destination: path.join(destination, 'screenshots'),
         plugins: [
@@ -54,7 +55,7 @@ async function minimiseImages (destination) {
 }
 
 function getUrlToFileName (url) {
-  return url.replace(/\//g, '--').substring(0, MAX_URL_FILENAME_LENGTH)
+  return url.replace(/[//:]/g, '_').substring(0, MAX_URL_FILENAME_LENGTH)
 }
 
 async function takeScreenshot (page, url) {
@@ -77,9 +78,9 @@ function getChromiumPath () {
   const isMacOS = (process.platform === 'darwin')
   const isLinux = (process.platform === 'linux')
 
-  if (isLinux) return 'chromium/chrome-linux/chrome'
-  if (isMacOS) return 'chromium/chrome-mac/Chromium.app/Contents/MacOS/Chromium'
-  if (isWindows) return 'chromium/chrome-win/chrome.exe'
+  if (isLinux) return path.join('chromium/chrome-linux/chrome')
+  if (isMacOS) return path.join('chromium/chrome-mac/Chromium.app/Contents/MacOS/Chromium')
+  if (isWindows) return path.join('chromium/chrome-win/chrome.exe')
 
   throw new Error('OS not supported')
 }
@@ -87,10 +88,12 @@ function getChromiumPath () {
 async function firstTimeVisit (url) {
   try {
     browser = await puppeteer.launch({ executablePath: getChromiumPath() })
+    // browser = await puppeteer.launch({ executablePath: path.join('C:/Program Files (x86)/Google/Chrome/Application/Chrome.exe') })
   } catch (e) {
     signale.fatal(e)
   }
   page = await browser.newPage()
+  await page.setUserAgent(USER_AGENT)
   page.setDefaultTimeout(TIMEOUT)
   try {
     await page.goto(url)
@@ -222,16 +225,21 @@ async function sitemapsParse (sitemaps) {
 }
 
 async function extractURLsFromRobots (origin) {
-  // Robots
-  const robots = await robotsParse(origin)
-  const robotsDisallowURLs = robots.disallow.map(url => origin + url)
+  try {
+    // Robots
+    const robots = await robotsParse(origin)
+    const robotsDisallowURLs = robots.disallow.map(url => origin + url)
 
-  // Sitemaps
-  const sitemapsURLs = await sitemapsParse(robots.sitemaps)
+    // Sitemaps
+    const sitemapsURLs = await sitemapsParse(robots.sitemaps)
 
-  // Concatenate all
-  const allURLsFromRobots = [...new Set(robotsDisallowURLs.concat(sitemapsURLs))]
-  return allURLsFromRobots
+    // Concatenate all
+    const allURLsFromRobots = [...new Set(robotsDisallowURLs.concat(sitemapsURLs))]
+    return allURLsFromRobots
+  } catch (error) {
+    signale.fatal(error)
+    return Promise.resolve([])
+  }
 }
 
 function createDirectories (destination) {
