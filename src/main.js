@@ -9,7 +9,7 @@ const visitedUrls = []
 const brokenUrls = []
 
 const domainWhitelist = [
-  'ing.es'
+  'ing.net'
 ]
 
 const filetypeBlacklist = []

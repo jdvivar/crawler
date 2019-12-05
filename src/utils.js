@@ -105,6 +105,31 @@ async function firstTimeVisit (url) {
   }
 }
 
+// function recursiveFindAnchors (node) {
+//   if (!node) return []
+//   const bareAnchors = [...node.querySelectorAll('a')]
+//   const anchors = [...bareAnchors]
+//   const allNodesWithShadowRoot = [...node.querySelectorAll('*')].map(node => node.shadowRoot).filter(i => i)
+//   if (allNodesWithShadowRoot.length === 0) return anchors
+//   return anchors.concat(allNodesWithShadowRoot.map(node => recursiveFindAnchors(node).flat())).flat()
+// }
+
+function formatHref (href) {
+  if (!href) return ''
+  const { origin, pathname } = new URL(href)
+  return origin + pathname
+}
+
+async function recursiveFindAnchorsInHandle (aHandle) {
+  if (!aHandle) return []
+  const bareAnchors = await aHandle.$$('a')
+  const allNodes = await aHandle.$$('*')
+  const allNodesWithShadowRoot = await Promise.all(allNodes.filter(elementHandle => elementHandle.evaluate(node => node.shadowRoot)))
+  if (allNodesWithShadowRoot.length === 0) return bareAnchors
+  const recursiveAllNodes = await Promise.all(allNodesWithShadowRoot.map(recursiveFindAnchorsInHandle))
+  return bareAnchors.concat(recursiveAllNodes)
+}
+
 async function handleUrl (url, destinationFolder) {
   if (!url.endsWith('pdf')) {
     const response = await page.goto(url)
@@ -115,8 +140,12 @@ async function handleUrl (url, destinationFolder) {
     if (response.status() < 400) {
       signale.success({ prefix: '[VISITING  ]', message: `Received HTML ${response.status()}` })
       await takeScreenshot(page, url)
-      const content = await page.content()
-      return content
+
+      const bodyHandle = await page.$('body')
+      const anchors = await recursiveFindAnchorsInHandle(bodyHandle)
+      await bodyHandle.dispose()
+      const allURLs = await Promise.all(anchors.flat(100).map(async anchor => formatHref(await anchor.getProperty('href'))))
+      return [...new Set(allURLs)]
     } else {
       signale.error({ prefix: '[VISITING  ]', message: `Error receiving HTML ${response.status()}` })
       throw new Error(response.status())
@@ -139,24 +168,18 @@ async function handleUrl (url, destinationFolder) {
   }
 }
 
-async function requestHtmlBody (url, brokenUrls, destinationFolder) {
+async function extractHrefsFromUrl (url, brokenUrls, destinationFolder) {
   try {
     if (!page) {
       await firstTimeVisit(url)
     }
     return await handleUrl(url, destinationFolder)
   } catch (error) {
+    signale.fatal(error)
     signale.error({ prefix: '[VISITING  ]', message: `Adding to broken URLs list: ${url}` })
     brokenUrls.push(url)
-    return ''
+    return []
   }
-}
-
-function extractAnchorsHrefs (html) {
-  const hrefAttrContentPattern = /<a.*?\shref="(?<href>[^>\s]*)"[^>]*>.*?<\/a>/g
-  // String.prototype.matchAll available from Nodejs v12
-  const matches = [...html.matchAll(hrefAttrContentPattern)]
-  return matches.map(match => match.groups.href)
 }
 
 function makeAbsoluteUrls (urls, origin) {
@@ -185,15 +208,12 @@ function filterUrls (urls, whitelist, filetypeBlacklist) {
 
 async function getPageHrefs (url, whitelist, filetypeBlacklist, brokenUrls, destinationFolder) {
   // Get HTML string out of a public URL and make a save a screenshot of it
-  const html = await requestHtmlBody(url, brokenUrls, destinationFolder)
+  const hrefs = await extractHrefsFromUrl(url, brokenUrls, destinationFolder)
 
-  if (!html) {
-    signale.warn({ prefix: '[VISITING  ]', message: `No HTML is used for this URL: ${url}` })
+  if (!hrefs.length) {
+    signale.warn({ prefix: '[VISITING  ]', message: `No hrefs found in this URL: ${url}` })
     return []
   }
-
-  // Parse it and extract hrefs out of all anchors
-  const hrefs = extractAnchorsHrefs(html)
 
   // Make all URLs absolute
   const absoluteHrefs = makeAbsoluteUrls(hrefs, new URL(url).origin)
