@@ -17,6 +17,9 @@ const filetypeBlacklist = []
 const destinationFolder = 'output'
 
 async function main () {
+  // Ignore SSL
+  // process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0
+
   if (!process.env.url) {
     signale.fatal('Please provide a URL to start from, like so: url=https://www.ing.es/ node run dev')
     process.exit(0)

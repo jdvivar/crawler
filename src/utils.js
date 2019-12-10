@@ -9,7 +9,7 @@ const path = require('path')
 const sitemapsParser = require('sitemap-stream-parser')
 const signale = require('signale')
 const MAX_URL_FILENAME_LENGTH = 100
-const TIMEOUT = 5000
+const TIMEOUT = 30000
 const USER_AGENT = 'Mozilla/5.0 (X11; CrOS x86_64 10066.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Safari/537.36'
 
 module.exports = {
@@ -105,31 +105,6 @@ async function firstTimeVisit (url) {
   }
 }
 
-// function recursiveFindAnchors (node) {
-//   if (!node) return []
-//   const bareAnchors = [...node.querySelectorAll('a')]
-//   const anchors = [...bareAnchors]
-//   const allNodesWithShadowRoot = [...node.querySelectorAll('*')].map(node => node.shadowRoot).filter(i => i)
-//   if (allNodesWithShadowRoot.length === 0) return anchors
-//   return anchors.concat(allNodesWithShadowRoot.map(node => recursiveFindAnchors(node).flat())).flat()
-// }
-
-function formatHref (href) {
-  if (!href) return ''
-  const { origin, pathname } = new URL(href)
-  return origin + pathname
-}
-
-async function recursiveFindAnchorsInHandle (aHandle) {
-  if (!aHandle) return []
-  const bareAnchors = await aHandle.$$('a')
-  const allNodes = await aHandle.$$('*')
-  const allNodesWithShadowRoot = await Promise.all(allNodes.filter(elementHandle => elementHandle.evaluate(node => node.shadowRoot)))
-  if (allNodesWithShadowRoot.length === 0) return bareAnchors
-  const recursiveAllNodes = await Promise.all(allNodesWithShadowRoot.map(recursiveFindAnchorsInHandle))
-  return bareAnchors.concat(recursiveAllNodes)
-}
-
 async function handleUrl (url, destinationFolder) {
   if (!url.endsWith('pdf')) {
     const response = await page.goto(url)
@@ -141,11 +116,24 @@ async function handleUrl (url, destinationFolder) {
       signale.success({ prefix: '[VISITING  ]', message: `Received HTML ${response.status()}` })
       await takeScreenshot(page, url)
 
-      const bodyHandle = await page.$('body')
-      const anchors = await recursiveFindAnchorsInHandle(bodyHandle)
-      await bodyHandle.dispose()
-      const allURLs = await Promise.all(anchors.flat(100).map(async anchor => formatHref(await anchor.getProperty('href'))))
-      return [...new Set(allURLs)]
+      return await page.evaluate(() => {
+        function recursiveFindAnchors(node) {
+          if (!node) return []
+          const bareAnchorURLs = [...node.querySelectorAll('a')].map(anchor => formatHref(anchor.href))
+          const allShadowRoots = [...node.querySelectorAll('*')].filter(node => node.shadowRoot).map(node => node.shadowRoot)
+          if (allShadowRoots.length === 0) return bareAnchorURLs
+          return bareAnchorURLs.concat(allShadowRoots.flatMap(recursiveFindAnchors))
+        }
+        
+        function formatHref (href) {
+            if (!href) return ''
+            const {origin, pathname} = new URL(href)
+            return origin + pathname
+        }
+        
+        return [...new Set(recursiveFindAnchors(document.body))]
+      })
+
     } else {
       signale.error({ prefix: '[VISITING  ]', message: `Error receiving HTML ${response.status()}` })
       throw new Error(response.status())
@@ -215,8 +203,10 @@ async function getPageHrefs (url, whitelist, filetypeBlacklist, brokenUrls, dest
     return []
   }
 
+  const nonEmptyHrefs = hrefs.filter(i => i)
+
   // Make all URLs absolute
-  const absoluteHrefs = makeAbsoluteUrls(hrefs, new URL(url).origin)
+  const absoluteHrefs = makeAbsoluteUrls(nonEmptyHrefs, new URL(url).origin)
 
   // Filter out invalid/not whitelisted/blacklisted filetyped URLs
   const filteredHrefs = filterUrls(absoluteHrefs, whitelist, filetypeBlacklist)
