@@ -1,9 +1,6 @@
 const puppeteer = require('puppeteer')
-const imagemin = require('imagemin')
-const imageminWebp = require('imagemin-webp')
 const fs = require('fs')
 const request = require('request')
-const { zip } = require('zip-a-folder')
 const robotsParse = require('robots-parse')
 const path = require('path')
 const sitemapsParser = require('sitemap-stream-parser')
@@ -14,8 +11,6 @@ const USER_AGENT = 'Mozilla/5.0 (X11; CrOS x86_64 10066.0.0) AppleWebKit/537.36 
 
 module.exports = {
   getPageHrefs,
-  minimiseImages,
-  zipBackup,
   extractURLsFromRobots,
   createDirectories,
   closePuppeteer
@@ -24,35 +19,35 @@ module.exports = {
 let browser
 let page
 
-async function zipBackup (folder) {
-  try {
-    const fileName = `backup-${new Date().toISOString().replace(':', '-')}.zip`
-    await zip(folder, fileName)
-    signale.star({ prefix: '[ZIP BACKUP]', message: `Images zipped in ${fileName}` })
-  } catch (e) {
-    signale.error({ prefix: '[ZIP BACKUP]', message: 'Error zipping images' })
-    signale.fatal(e)
-  }
-}
+// async function zipBackup (folder) {
+//   try {
+//     const fileName = `backup-${new Date().toISOString().replace(':', '-')}.zip`
+//     await zip(folder, fileName)
+//     signale.star({ prefix: '[ZIP BACKUP]', message: `Images zipped in ${fileName}` })
+//   } catch (e) {
+//     signale.error({ prefix: '[ZIP BACKUP]', message: 'Error zipping images' })
+//     signale.fatal(e)
+//   }
+// }
 
-async function minimiseImages (destination) {
-  try {
-    await imagemin([path.join('screenshots/*.png')],
-      {
-        destination: path.join(destination, 'screenshots'),
-        plugins: [
-          imageminWebp({
-            quality: 10
-          })
-        ]
-      }
-    )
-    signale.star({ prefix: '[COMPRESS IMAGES]', message: 'Images optimised' })
-  } catch (e) {
-    signale.error({ prefix: '[COMPRESS IMAGES]', message: 'Error optimising images' })
-    signale.fatal(e)
-  }
-}
+// async function minimiseImages (destination) {
+//   try {
+//     await imagemin([path.join('screenshots/*.png')],
+//       {
+//         destination: path.join(destination, 'screenshots'),
+//         plugins: [
+//           imageminWebp({
+//             quality: 10
+//           })
+//         ]
+//       }
+//     )
+//     signale.star({ prefix: '[COMPRESS IMAGES]', message: 'Images optimised' })
+//   } catch (e) {
+//     signale.error({ prefix: '[COMPRESS IMAGES]', message: 'Error optimising images' })
+//     signale.fatal(e)
+//   }
+// }
 
 function getUrlToFileName (url) {
   return url.replace(/[//:]/g, '_').substring(0, MAX_URL_FILENAME_LENGTH)

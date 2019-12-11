@@ -18,7 +18,7 @@ const destinationFolder = 'output'
 
 async function main () {
   // Ignore SSL
-  // process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0
+  process.env.NODE_TLS_REJECT_UNAUTHORIZED = 0
 
   if (!process.env.url) {
     signale.fatal('Please provide a URL to start from, like so: url=https://www.ing.es/ node run dev')
@@ -58,8 +58,8 @@ async function main () {
   signale.note({ prefix: '[VISITING  ]', message: `Broken URLs: ${brokenUrls}` })
 
   // Compress images in WEBP format and zip everything into a backup file
-  await utils.minimiseImages(destinationFolder)
-  await utils.zipBackup(destinationFolder)
+  // await utils.minimiseImages(destinationFolder)
+  // await utils.zipBackup(destinationFolder)
 
   // Calculate execution time
   const executionTime = performance.now() - executionStart

@@ -18,14 +18,11 @@
   "license": "ISC",
   "dependencies": {
     "core-js": "^3.4.1",
-    "imagemin": "^7.0.1",
-    "imagemin-webp": "^5.1.0",
     "puppeteer": "^2.0.0",
     "request": "^2.88.0",
     "robots-parse": "0.0.6",
     "signale": "^1.4.0",
-    "sitemap-stream-parser": "^1.7.0",
-    "zip-a-folder": "0.0.9"
+    "sitemap-stream-parser": "^1.7.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.7.0",
