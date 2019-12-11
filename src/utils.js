@@ -19,36 +19,6 @@ module.exports = {
 let browser
 let page
 
-// async function zipBackup (folder) {
-//   try {
-//     const fileName = `backup-${new Date().toISOString().replace(':', '-')}.zip`
-//     await zip(folder, fileName)
-//     signale.star({ prefix: '[ZIP BACKUP]', message: `Images zipped in ${fileName}` })
-//   } catch (e) {
-//     signale.error({ prefix: '[ZIP BACKUP]', message: 'Error zipping images' })
-//     signale.fatal(e)
-//   }
-// }
-
-// async function minimiseImages (destination) {
-//   try {
-//     await imagemin([path.join('screenshots/*.png')],
-//       {
-//         destination: path.join(destination, 'screenshots'),
-//         plugins: [
-//           imageminWebp({
-//             quality: 10
-//           })
-//         ]
-//       }
-//     )
-//     signale.star({ prefix: '[COMPRESS IMAGES]', message: 'Images optimised' })
-//   } catch (e) {
-//     signale.error({ prefix: '[COMPRESS IMAGES]', message: 'Error optimising images' })
-//     signale.fatal(e)
-//   }
-// }
-
 function getUrlToFileName (url) {
   return url.replace(/[//:]/g, '_').substring(0, MAX_URL_FILENAME_LENGTH)
 }

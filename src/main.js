@@ -57,10 +57,6 @@ async function main () {
   signale.note({ prefix: '[VISITING  ]', message: `Visited URLs: ${visitedUrls}` })
   signale.note({ prefix: '[VISITING  ]', message: `Broken URLs: ${brokenUrls}` })
 
-  // Compress images in WEBP format and zip everything into a backup file
-  // await utils.minimiseImages(destinationFolder)
-  // await utils.zipBackup(destinationFolder)
-
   // Calculate execution time
   const executionTime = performance.now() - executionStart
   const executionObject = {
