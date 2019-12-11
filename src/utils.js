@@ -116,24 +116,23 @@ async function handleUrl (url, destinationFolder) {
       signale.success({ prefix: '[VISITING  ]', message: `Received HTML ${response.status()}` })
       await takeScreenshot(page, url)
 
-      return await page.evaluate(() => {
-        function recursiveFindAnchors(node) {
+      return page.evaluate(() => {
+        function recursiveFindAnchors (node) {
           if (!node) return []
           const bareAnchorURLs = [...node.querySelectorAll('a')].map(anchor => formatHref(anchor.href))
           const allShadowRoots = [...node.querySelectorAll('*')].filter(node => node.shadowRoot).map(node => node.shadowRoot)
           if (allShadowRoots.length === 0) return bareAnchorURLs
           return bareAnchorURLs.concat(allShadowRoots.flatMap(recursiveFindAnchors))
         }
-        
+
         function formatHref (href) {
-            if (!href) return ''
-            const {origin, pathname} = new URL(href)
-            return origin + pathname
+          if (!href) return ''
+          const { origin, pathname } = new URL(href)
+          return origin + pathname
         }
-        
+
         return [...new Set(recursiveFindAnchors(document.body))]
       })
-
     } else {
       signale.error({ prefix: '[VISITING  ]', message: `Error receiving HTML ${response.status()}` })
       throw new Error(response.status())
