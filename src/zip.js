@@ -1,20 +1,27 @@
 const path = require('path')
 const signale = require('signale')
-const zip = require('bestzip')
+const { zip } = require('zip-a-folder')
 
 const destPath = path.join('output')
 
-async function zipBackup () {
-  const fileName = `backup-${new Date().toISOString().replace(':', '-')}.zip`
+function getDateString () {
+  const date = new Date()
+  return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}_${date.getHours()}-${date.getMinutes()}-${date.getSeconds()}`
+}
 
-  zip({ source: destPath, destination: fileName })
-    .then(() => signale.star({ prefix: '[ZIP BACKUP]', message: `Images zipped in ${fileName}` }))
-    .catch((err) => {
-      console.error(err)
-    })
+async function zipBackup () {
+  try {
+    const fileName = `backup-${getDateString()}.zip`
+    await zip(destPath, path.join(fileName))
+    signale.success({ prefix: '[ZIP BACKUP]', message: `Images zipped in ${fileName}` })
+  } catch (e) {
+    signale.fatal(e)
+    signale.error({ prefix: '[ZIP BACKUP]', message: 'Error zipping images' })
+  }
 }
 
 async function main () {
+  signale.star({ prefix: '[ZIP BACKUP]', message: 'Zipping images' })
   await zipBackup()
   process.exit(0)
 }
