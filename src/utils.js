@@ -1,6 +1,6 @@
 const puppeteer = require('puppeteer')
 const fs = require('fs')
-const request = require('request')
+const request = require('request-promise-native')
 const robotsParse = require('robots-parse')
 const path = require('path')
 const sitemapsParser = require('sitemap-stream-parser')
@@ -13,7 +13,8 @@ module.exports = {
   getPageHrefs,
   extractURLsFromRobots,
   createDirectories,
-  closePuppeteer
+  closePuppeteer,
+  saveURLsToFile
 }
 
 let browser
@@ -103,20 +104,15 @@ async function handleUrl (url, destinationFolder) {
       throw new Error(response.status())
     }
   } else {
-    const fileName = `./${destinationFolder}/pdfs/${getUrlToFileName(url)}`
-    return new Promise(function (resolve, reject) {
-      request
-        .get(url, { timeout: TIMEOUT })
-        .on('error', error => {
-          signale.fatal(error)
-          reject(error)
-        })
-        .on('response', () => {
-          signale.success({ prefix: '[VISITING  ]', message: 'Received PDF' })
-          resolve('')
-        })
-        .pipe(fs.createWriteStream(fileName))
-    })
+    try {
+      const fileName = path.join(`./${destinationFolder}/pdfs/${getUrlToFileName(url)}`)
+      const pdfBuffer = await request.get({ url, timeout: TIMEOUT, encoding: null })
+      fs.writeFileSync(fileName, pdfBuffer)
+      signale.success({ prefix: '[VISITING  ]', message: `Received PDF from ${url}` })
+    } catch (e) {
+      signale.error({ prefix: '[VISITING  ]', message: `Error receiving PDF from ${url}` })
+      throw e
+    }
   }
 }
 
@@ -223,4 +219,8 @@ function createDirectories (destination) {
 
 async function closePuppeteer () {
   if (browser) await browser.close()
+}
+
+function saveURLsToFile (urls) {
+  fs.writeFileSync('urls.json', JSON.stringify(urls))
 }

@@ -57,6 +57,8 @@ async function main () {
   signale.note({ prefix: '[VISITING  ]', message: `Visited URLs: ${visitedUrls}` })
   signale.note({ prefix: '[VISITING  ]', message: `Broken URLs: ${brokenUrls}` })
 
+  utils.saveURLsToFile({ visitedUrls, brokenUrls })
+
   // Calculate execution time
   const executionTime = performance.now() - executionStart
   const executionObject = {

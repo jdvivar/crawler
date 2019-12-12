@@ -22,7 +22,7 @@
   "dependencies": {
     "core-js": "^3.4.1",
     "puppeteer": "^2.0.0",
-    "request": "^2.88.0",
+    "request-promise-native": "^1.0.8",
     "robots-parse": "0.0.6",
     "signale": "^1.4.0",
     "sitemap-stream-parser": "^1.7.0",
