@@ -7,6 +7,9 @@
     "lint": "standard",
     "lint:fix": "standard --fix",
     "start": "node dist/main.js",
+    "poststart": "npm run optimise-images && npm run zip",
+    "optimise-images": "node dist/optimise-images.js",
+    "zip": "node dist/zip.js",
     "clean": "rimraf dist && rimraf screenshots && rimraf output",
     "dev": "npm run build && npm run start",
     "dev:watch": "nodemon --watch src --exec npm run dev",
@@ -18,10 +21,8 @@
   "license": "ISC",
   "dependencies": {
     "core-js": "^3.4.1",
-    "imagemin": "^7.0.1",
-    "imagemin-webp": "^5.1.0",
     "puppeteer": "^2.0.0",
-    "request": "^2.88.0",
+    "request-promise-native": "^1.0.8",
     "robots-parse": "0.0.6",
     "signale": "^1.4.0",
     "sitemap-stream-parser": "^1.7.0",
@@ -49,7 +50,8 @@
     "env": "node",
     "ignore": [
       "dist/",
-      "chromium/"
+      "chromium/",
+      "lib/"
     ],
     "globals": []
   }

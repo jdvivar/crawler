@@ -1,58 +1,24 @@
 const puppeteer = require('puppeteer')
-const imagemin = require('imagemin')
-const imageminWebp = require('imagemin-webp')
 const fs = require('fs')
-const request = require('request')
-const { zip } = require('zip-a-folder')
+const request = require('request-promise-native')
 const robotsParse = require('robots-parse')
 const path = require('path')
 const sitemapsParser = require('sitemap-stream-parser')
 const signale = require('signale')
 const MAX_URL_FILENAME_LENGTH = 100
-const TIMEOUT = 5000
+const TIMEOUT = 30000
 const USER_AGENT = 'Mozilla/5.0 (X11; CrOS x86_64 10066.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Safari/537.36'
 
 module.exports = {
   getPageHrefs,
-  minimiseImages,
-  zipBackup,
   extractURLsFromRobots,
   createDirectories,
-  closePuppeteer
+  closePuppeteer,
+  saveURLsToFile
 }
 
 let browser
 let page
-
-async function zipBackup (folder) {
-  try {
-    const fileName = `backup-${new Date().toISOString().replace(':', '-')}.zip`
-    await zip(folder, fileName)
-    signale.star({ prefix: '[ZIP BACKUP]', message: `Images zipped in ${fileName}` })
-  } catch (e) {
-    signale.error({ prefix: '[ZIP BACKUP]', message: 'Error zipping images' })
-    signale.fatal(e)
-  }
-}
-
-async function minimiseImages (destination) {
-  try {
-    await imagemin([path.join('screenshots/*.png')],
-      {
-        destination: path.join(destination, 'screenshots'),
-        plugins: [
-          imageminWebp({
-            quality: 10
-          })
-        ]
-      }
-    )
-    signale.star({ prefix: '[COMPRESS IMAGES]', message: 'Images optimised' })
-  } catch (e) {
-    signale.error({ prefix: '[COMPRESS IMAGES]', message: 'Error optimising images' })
-    signale.fatal(e)
-  }
-}
 
 function getUrlToFileName (url) {
   return url.replace(/[//:]/g, '_').substring(0, MAX_URL_FILENAME_LENGTH)
@@ -115,48 +81,53 @@ async function handleUrl (url, destinationFolder) {
     if (response.status() < 400) {
       signale.success({ prefix: '[VISITING  ]', message: `Received HTML ${response.status()}` })
       await takeScreenshot(page, url)
-      const content = await page.content()
-      return content
+
+      return page.evaluate(() => {
+        function recursiveFindAnchors (node) {
+          if (!node) return []
+          const bareAnchorURLs = [...node.querySelectorAll('a')].map(anchor => formatHref(anchor.href))
+          const allShadowRoots = [...node.querySelectorAll('*')].filter(node => node.shadowRoot).map(node => node.shadowRoot)
+          if (allShadowRoots.length === 0) return bareAnchorURLs
+          return bareAnchorURLs.concat(allShadowRoots.flatMap(recursiveFindAnchors))
+        }
+
+        function formatHref (href) {
+          if (!href) return ''
+          const { origin, pathname } = new URL(href)
+          return origin + pathname
+        }
+
+        return [...new Set(recursiveFindAnchors(document.body))]
+      })
     } else {
       signale.error({ prefix: '[VISITING  ]', message: `Error receiving HTML ${response.status()}` })
       throw new Error(response.status())
     }
   } else {
-    const fileName = `./${destinationFolder}/pdfs/${getUrlToFileName(url)}`
-    return new Promise(function (resolve, reject) {
-      request
-        .get(url, { timeout: TIMEOUT })
-        .on('error', error => {
-          signale.fatal(error)
-          reject(error)
-        })
-        .on('response', () => {
-          signale.success({ prefix: '[VISITING  ]', message: 'Received PDF' })
-          resolve('')
-        })
-        .pipe(fs.createWriteStream(fileName))
-    })
+    try {
+      const fileName = path.join(`./${destinationFolder}/pdfs/${getUrlToFileName(url)}`)
+      const pdfBuffer = await request.get({ url, timeout: TIMEOUT, encoding: null })
+      fs.writeFileSync(fileName, pdfBuffer)
+      signale.success({ prefix: '[VISITING  ]', message: `Received PDF from ${url}` })
+    } catch (e) {
+      signale.error({ prefix: '[VISITING  ]', message: `Error receiving PDF from ${url}` })
+      throw e
+    }
   }
 }
 
-async function requestHtmlBody (url, brokenUrls, destinationFolder) {
+async function extractHrefsFromUrl (url, brokenUrls, destinationFolder) {
   try {
     if (!page) {
       await firstTimeVisit(url)
     }
     return await handleUrl(url, destinationFolder)
   } catch (error) {
+    signale.fatal(error)
     signale.error({ prefix: '[VISITING  ]', message: `Adding to broken URLs list: ${url}` })
     brokenUrls.push(url)
-    return ''
+    return []
   }
-}
-
-function extractAnchorsHrefs (html) {
-  const hrefAttrContentPattern = /<a.*?\shref="(?<href>[^>\s]*)"[^>]*>.*?<\/a>/g
-  // String.prototype.matchAll available from Nodejs v12
-  const matches = [...html.matchAll(hrefAttrContentPattern)]
-  return matches.map(match => match.groups.href)
 }
 
 function makeAbsoluteUrls (urls, origin) {
@@ -185,18 +156,17 @@ function filterUrls (urls, whitelist, filetypeBlacklist) {
 
 async function getPageHrefs (url, whitelist, filetypeBlacklist, brokenUrls, destinationFolder) {
   // Get HTML string out of a public URL and make a save a screenshot of it
-  const html = await requestHtmlBody(url, brokenUrls, destinationFolder)
+  const hrefs = await extractHrefsFromUrl(url, brokenUrls, destinationFolder)
 
-  if (!html) {
-    signale.warn({ prefix: '[VISITING  ]', message: `No HTML is used for this URL: ${url}` })
+  if (!hrefs.length) {
+    signale.warn({ prefix: '[VISITING  ]', message: `No hrefs found in this URL: ${url}` })
     return []
   }
 
-  // Parse it and extract hrefs out of all anchors
-  const hrefs = extractAnchorsHrefs(html)
+  const nonEmptyHrefs = hrefs.filter(i => i)
 
   // Make all URLs absolute
-  const absoluteHrefs = makeAbsoluteUrls(hrefs, new URL(url).origin)
+  const absoluteHrefs = makeAbsoluteUrls(nonEmptyHrefs, new URL(url).origin)
 
   // Filter out invalid/not whitelisted/blacklisted filetyped URLs
   const filteredHrefs = filterUrls(absoluteHrefs, whitelist, filetypeBlacklist)
@@ -249,4 +219,8 @@ function createDirectories (destination) {
 
 async function closePuppeteer () {
   if (browser) await browser.close()
+}
+
+function saveURLsToFile (urls) {
+  fs.writeFileSync('urls.json', JSON.stringify(urls))
 }
