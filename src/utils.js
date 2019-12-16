@@ -59,6 +59,10 @@ async function firstTimeVisit (url) {
     signale.fatal(e)
   }
   page = await browser.newPage()
+  if (process.env.width) {
+    signale.info({ prefix: '[SCREENSHOT]', message: `Setting width: ${process.env.width}` })
+    page.setViewport({ width: parseInt(process.env.width), height: 1000 })
+  }
   await page.setUserAgent(USER_AGENT)
   page.setDefaultTimeout(TIMEOUT)
   try {
