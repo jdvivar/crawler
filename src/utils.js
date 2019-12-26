@@ -162,7 +162,7 @@ async function getPageHrefs (url, whitelist, filetypeBlacklist, brokenUrls, dest
   // Get HTML string out of a public URL and make a save a screenshot of it
   const hrefs = await extractHrefsFromUrl(url, brokenUrls, destinationFolder)
 
-  if (!hrefs.length) {
+  if (!hrefs || !hrefs.length) {
     signale.warn({ prefix: '[VISITING  ]', message: `No hrefs found in this URL: ${url}` })
     return []
   }

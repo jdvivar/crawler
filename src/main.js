@@ -10,7 +10,7 @@ const brokenUrls = []
 const discoveredURLs = {}
 
 const domainWhitelist = [
-  'ing.net'
+  'ing.es'
 ]
 
 const filetypeBlacklist = []
@@ -22,7 +22,7 @@ async function main () {
   process.env.NODE_TLS_REJECT_UNAUTHORIZED = 0
 
   if (!process.env.url) {
-    signale.fatal('Please provide a URL to start from, like so: url=https://www.ing.es/ node run dev')
+    signale.fatal('Please provide a URL to start from, like so: url=https://www.ing.es/ npm run dev')
     process.exit(0)
   } else {
     pendingUrls.push(process.env.url)
