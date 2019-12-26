@@ -7,6 +7,7 @@ const signale = require('signale')
 let pendingUrls = []
 const visitedUrls = []
 const brokenUrls = []
+const discoveredURLs = {}
 
 const domainWhitelist = [
   'ing.net'
@@ -50,6 +51,7 @@ async function main () {
     signale.info({ prefix: '[VISITING  ]', message: thisUrl })
     const extractedUrls = await utils.getPageHrefs(thisUrl, domainWhitelist, filetypeBlacklist, brokenUrls, destinationFolder)
     const newUrls = extractedUrls.filter(url => !visitedUrls.includes(url))
+    discoveredURLs[thisUrl] = extractedUrls
     pendingUrls = [...new Set(pendingUrls.concat(newUrls))]
   }
 
@@ -57,7 +59,7 @@ async function main () {
   signale.note({ prefix: '[VISITING  ]', message: `Visited URLs: ${visitedUrls}` })
   signale.note({ prefix: '[VISITING  ]', message: `Broken URLs: ${brokenUrls}` })
 
-  utils.saveURLsToFile({ visitedUrls, brokenUrls })
+  utils.saveURLsToFile({ visitedUrls, brokenUrls, discoveredURLs })
 
   // Calculate execution time
   const executionTime = performance.now() - executionStart
